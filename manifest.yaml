@@ -1,0 +1,94 @@
+# For reference: https://docs.devrev.ai/snap-ins/references/manifest.
+# Refactor the code based on your business logic.
+
+version: "2"
+name: "Airmeet Integration"
+description: "Syncs attendee data between Airmeet and DevRev"
+
+# This is the name displayed in DevRev where the Snap-In takes actions using the token of this service account.
+service_account:
+  display_name: Airmeet Sync Bot
+
+# Add any external connection, reference: https://docs.devrev.ai/snap-ins/concepts#connection.
+connections:
+  - name: airmeet
+    description: Airmeet API connection
+    type: http
+    config:
+      base_url: "https://api-gateway.airmeet.com/prod"
+      auth_type: api_key
+      headers:
+        Content-Type: application/json
+
+# Add organization level inputs, reference: https://docs.devrev.ai/snap-ins/references/inputs.
+inputs:
+  organization:
+    - name: airmeet_api_key
+      description: Airmeet API Key
+      field_type: text
+      is_secret: true
+      ui:
+        display_name: Airmeet API Key
+    - name: airmeet_region
+      description: Airmeet API Region (default, eu, us)
+      field_type: text
+      default_value: "default"
+      ui:
+        display_name: Airmeet Region
+    - name: account_linking_enabled
+      description: Enable account linking and creation
+      field_type: boolean
+      default_value: true
+      ui:
+        display_name: Enable Account Linking
+
+# Event source reference: https://docs.devrev.ai/snap-ins/references/event_sources#supported-event-source-types-and-their-event-types.
+event_sources:
+  organization:
+    - name: airmeet-webhooks
+      description: Airmeet webhook events listener
+      display_name: Airmeet Events
+      type: http-endpoint
+      config:
+        event_types:
+          - attendee.registered
+          - attendee.joined
+          - attendee.booth_visit
+          - attendee.question_asked
+
+# Functions reference: https://docs.devrev.ai/snap-ins/references/functions.
+functions:
+  - name: handle_registration
+    description: Handle attendee registration events
+  - name: handle_attendance
+    description: Handle attendee join events and track time spent
+  - name: handle_booth_activity
+    description: Handle booth visits and lead magnet interactions
+  - name: handle_engagement
+    description: Handle attendee questions and interactions
+
+# Automations reference: https://docs.devrev.ai/snap-ins/concepts#automation.
+automations:
+  - name: process-registration
+    source: airmeet-webhooks
+    event_types:
+      - attendee.registered
+    function: handle_registration
+  
+  - name: track-attendance
+    source: airmeet-webhooks
+    event_types:
+      - attendee.joined
+    function: handle_attendance
+  
+  - name: track-booth-activity
+    source: airmeet-webhooks
+    event_types:
+      - attendee.booth_visit
+    function: handle_booth_activity
+  
+  - name: track-engagement
+    source: airmeet-webhooks
+    event_types:
+      - attendee.question_asked
+    function: handle_engagement

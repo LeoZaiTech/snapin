@@ -1,0 +1,32 @@
+{
+  "event": {
+    "type": "attendee.registered",
+    "payload": {
+      "email": "test@company.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "phone": "+1234567890",
+      "city": "San Francisco",
+      "country": "USA",
+      "jobTitle": "Developer",
+      "utm_source": "linkedin",
+      "utm_medium": "social",
+      "utm_campaign": "devrev_event"
+    }
+  },
+  "inputs": {
+    "organization": {
+      "account_linking_enabled": true,
+      "airmeet_api_key": "test_key",
+      "airmeet_region": "default"
+    }
+  },
+  "context": {
+    "secrets": {
+      "service_account_token": "eyJhbGciOiJSUzI1NiIsImlzcyI6Imh0dHBzOi8vYXV0aC10b2tlbi5kZXZyZXYuYWkvIiwia2lkIjoic3RzX2tpZF9yc2EiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOlsiamFudXMiXSwiYXpwIjoiZG9uOmlkZW50aXR5OmR2cnYtdXMtMTpkZXZvLzFjRjZ1a1dJQUE6ZGV2dS8xIiwiZXhwIjoxODMyNjQ4NzU3LCJodHRwOi8vZGV2cmV2LmFpL2F1dGgwX3VpZCI6ImRvbjppZGVudGl0eTpkdnJ2LXVzLTE6ZGV2by9zdXBlcjphdXRoMF91c2VyL2xpbmtlZGlufC0wOWRzVU5FY0giLCJodHRwOi8vZGV2cmV2LmFpL2F1dGgwX3VzZXJfaWQiOiJsaW5rZWRpbnwtMDlkc1VORWNIIiwiaHR0cDovL2RldnJldi5haS9kZXZvX2RvbiI6ImRvbjppZGVudGl0eTpkdnJ2LXVzLTE6ZGV2by8xY0Y2dWtXSUFBIiwiaHR0cDovL2RldnJldi5haS9kZXZvaWQiOiJERVYtMWNGNnVrV0lBQSIsImh0dHA6Ly9kZXZyZXYuYWkvZGV2dWlkIjoiREVWVS0xIiwiaHR0cDovL2RldnJldi5haS9kaXNwbGF5bmFtZSI6Imxlb256ZXRlY2h3aXoiLCJodHRwOi8vZGV2cmV2LmFpL2VtYWlsIjoibGVvbnpldGVjaHdpekBnbWFpbC5jb20iLCJodHRwOi8vZGV2cmV2LmFpL2Z1bGxuYW1lIjoiQXJhbmdvIERhdmlkIiwiaHR0cDovL2RldnJldi5haS9pc192ZXJpZmllZCI6dHJ1ZSwiaHR0cDovL2RldnJldi5haS90b2tlbnR5cGUiOiJ1cm46ZGV2cmV2OnBhcmFtczpvYXV0aDp0b2tlbi10eXBlOnBhdCIsImlhdCI6MTczODA0MDc1NywiaXNzIjoiaHR0cHM6Ly9hdXRoLXRva2VuLmRldnJldi5haS8iLCJqdGkiOiJkb246aWRlbnRpdHk6ZHZydi11cy0xOmRldm8vMWNGNnVrV0lBQTp0b2tlbi80V3ZHbW9DYiIsIm9yZ19pZCI6Im9yZ196a3VZb3hVa01qR2FhSldUIiwic3ViIjoiZG9uOmlkZW50aXR5OmR2cnYtdXMtMTpkZXZvLzFjRjZ1a1dJQUE6ZGV2dS8xIn0.mq7U2p7Cjg_Hjyq8rntwbdtWMBlrlEnTlb033rCA36dJ4NWXfo9gvG2TwpmSJf7ylzsl-GOq1QyipoCQcR-4RxUWcl2GtYtM4-VNaNFFZeOYDAtYNTCRdLZLQARwBMFOhbgaDUwjGbEPRf7RXz4g2QQVsDzWRfQXTh6Mo8XfOmP-SrI18SvN_8E9YU5uxbaclKdlJf_bRKBpOlX_1cDL7tBmyXU0MhXoo_SbXp7SZDfpHFNMUb6tmn1R7OjjlUmjybY-O1SWixKg3ZQT7bERlpZr2Mm99zFsu-v6CtEvDoJex_Ou9FBggfEL8EQ4qlK9UsPnteNMkAvyfWA-TSzs0g"
+    }
+  },
+  "execution_metadata": {
+    "devrev_endpoint": "https://api.devrev.ai"
+  }
+}
