@@ -1,5 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+// Type alias for backward compatibility
+export type DevRevClient = DevRevAPIClient;
+
 export class DevRevAPIClient {
     private client: AxiosInstance;
 
