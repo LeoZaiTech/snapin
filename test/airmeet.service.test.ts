@@ -95,15 +95,20 @@ describe('AirmeetService', () => {
 
     it('should fetch all event data', async () => {
         const mockAuthResponse = { data: { token: 'mock-token', expiresIn: 3600 } };
+        const mockEvent = {
+            id: TEST_EVENT_ID,
+            name: 'Test Event',
+            sessions: [{ id: 'session1', title: 'Test Session' }]
+        };
+        const mockAttendees = [{ id: '1', name: 'Test User 1' }];
+        const mockSessionAttendance = [{ sessionId: 'session1', attendeeId: '1' }];
+        const mockBoothActivity = [{ id: 'booth1', name: 'Test Booth' }];
+
         const mockEventData = {
-            event: {
-                id: TEST_EVENT_ID,
-                name: 'Test Event',
-                sessions: [{ id: 'session1', title: 'Test Session' }]
-            },
-            attendees: [{ id: '1', name: 'Test User 1' }],
-            sessionAttendance: [{ sessionId: 'session1', attendeeId: '1' }],
-            boothActivity: [{ id: 'booth1', name: 'Test Booth' }]
+            event: mockEvent,
+            attendees: mockAttendees,
+            sessionAttendance: mockSessionAttendance,
+            boothActivity: mockBoothActivity
         };
 
         const axiosInstance = mockedAxios.create();
@@ -113,10 +118,10 @@ describe('AirmeetService', () => {
         // Setup the get responses in sequence
         const getMock = axiosInstance.get as jest.Mock;
         getMock
-            .mockResolvedValueOnce({ data: { event: mockEventData.event } })
-            .mockResolvedValueOnce({ data: { attendees: mockEventData.attendees } })
-            .mockResolvedValueOnce({ data: { attendance: mockEventData.sessionAttendance } })
-            .mockResolvedValueOnce({ data: { booth_activities: mockEventData.boothActivity } });
+            .mockResolvedValueOnce({ data: mockEvent }) // getEvent returns data directly
+            .mockResolvedValueOnce({ data: { attendees: mockAttendees } })
+            .mockResolvedValueOnce({ data: { attendance: mockSessionAttendance } })
+            .mockResolvedValueOnce({ data: { booth_activities: mockBoothActivity } });
 
         const allData = await airmeetService.getAllEventData(TEST_EVENT_ID);
         
