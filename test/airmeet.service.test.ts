@@ -98,16 +98,20 @@ describe('AirmeetService', () => {
         const mockEvent = {
             id: TEST_EVENT_ID,
             name: 'Test Event',
-            sessions: [{ id: 'session1', title: 'Test Session' }]
+            sessions: [
+                { id: 'session1', title: 'Test Session 1' },
+                { id: 'session2', title: 'Test Session 2' }
+            ]
         };
         const mockAttendees = [{ id: '1', name: 'Test User 1' }];
-        const mockSessionAttendance = [{ sessionId: 'session1', attendeeId: '1' }];
+        const mockSessionAttendance1 = [{ sessionId: 'session1', attendeeId: '1' }];
+        const mockSessionAttendance2 = [{ sessionId: 'session2', attendeeId: '1' }];
         const mockBoothActivity = [{ id: 'booth1', name: 'Test Booth' }];
 
         const mockEventData = {
             event: mockEvent,
             attendees: mockAttendees,
-            sessionAttendance: mockSessionAttendance,
+            sessionAttendance: [...mockSessionAttendance1, ...mockSessionAttendance2],
             boothActivity: mockBoothActivity
         };
 
@@ -115,13 +119,22 @@ describe('AirmeetService', () => {
         // Use mockResolvedValue instead of mockResolvedValueOnce for auth to handle parallel calls
         (axiosInstance.post as jest.Mock).mockResolvedValue(mockAuthResponse);
         
-        // Setup the get responses in sequence
+        // Setup the get responses
         const getMock = axiosInstance.get as jest.Mock;
-        getMock
-            .mockResolvedValueOnce({ data: mockEvent }) // getEvent returns data directly
-            .mockResolvedValueOnce({ data: { attendees: mockAttendees } })
-            .mockResolvedValueOnce({ data: { attendance: mockSessionAttendance } })
-            .mockResolvedValueOnce({ data: { booth_activities: mockBoothActivity } });
+        getMock.mockImplementation((url: string) => {
+            if (url.includes('/sessions/session1/attendance')) {
+                return Promise.resolve({ data: { attendance: mockSessionAttendance1 } });
+            } else if (url.includes('/sessions/session2/attendance')) {
+                return Promise.resolve({ data: { attendance: mockSessionAttendance2 } });
+            } else if (url.includes('/booth-activities')) {
+                return Promise.resolve({ data: { activities: mockBoothActivity } });
+            } else if (url.includes('/attendees')) {
+                return Promise.resolve({ data: { attendees: mockAttendees } });
+            } else if (url.includes(`/events/${TEST_EVENT_ID}`)) {
+                return Promise.resolve({ data: mockEvent });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
         const allData = await airmeetService.getAllEventData(TEST_EVENT_ID);
         
