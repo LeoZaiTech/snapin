@@ -30,20 +30,8 @@ type MockRegistrationSyncService = {
 // Default mock responses
 const mockResponses = {
     airmeet: {
-        post: {
-            status: 200,
-            statusText: 'OK',
-            data: { success: true },
-            headers: {},
-            config: {}
-        },
-        get: {
-            status: 200,
-            statusText: 'OK',
-            data: {},
-            headers: {},
-            config: {}
-        },
+        post: { data: { success: true } },
+        get: { data: {} },
     },
     accountLinking: {
         contact: { id: 'contact123' },
@@ -60,30 +48,30 @@ const mockResponses = {
             }
         }
     },
-} as const;
+};
 
 // Mock service factories
-const createMockAirmeetService = (): MockAirmeetService => ({
-    post: jest.fn().mockResolvedValue(mockResponses.airmeet.post),
-    get: jest.fn().mockResolvedValue(mockResponses.airmeet.get),
-    authenticate: jest.fn().mockResolvedValue(undefined),
-    client: {},
-    baseUrl: 'https://test.com',
-    communityId: 'test-community',
-    accessToken: 'test-token'
-});
+const createMockAirmeetService = (): MockAirmeetService => {
+    const service = new MockAirmeetService();
+    service.post.mockResolvedValue({ data: { success: true } });
+    service.get.mockResolvedValue({ data: {} });
+    service.authenticate.mockResolvedValue(undefined);
+    return service;
+};
 
-const createMockAccountLinkingService = (): MockAccountLinkingService => ({
-    linkOrCreateContact: jest.fn().mockResolvedValue(mockResponses.accountLinking.contact),
-    client: {},
-    lookupOrCreateAccount: jest.fn().mockResolvedValue(mockResponses.accountLinking.account)
-});
+const createMockAccountLinkingService = (): MockAccountLinkingService => {
+    const service = new MockAccountLinkingService();
+    service.linkOrCreateContact.mockResolvedValue(mockResponses.accountLinking.contact);
+    service.lookupOrCreateAccount.mockResolvedValue(mockResponses.accountLinking.account);
+    return service;
+};
 
-const createMockRegistrationSyncService = (): MockRegistrationSyncService => ({
-    syncRegistration: jest.fn().mockResolvedValue(mockResponses.registration.sync),
-    client: {},
-    getRegistration: jest.fn().mockResolvedValue(null)
-});
+const createMockRegistrationSyncService = (): MockRegistrationSyncService => {
+    const service = new MockRegistrationSyncService();
+    service.syncRegistration.mockResolvedValue(mockResponses.registration.sync);
+    service.getRegistration.mockResolvedValue(null);
+    return service;
+};
 
 describe('WebhookHandlerService', () => {
     let mockAirmeetService: MockAirmeetService;
