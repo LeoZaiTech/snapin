@@ -5,6 +5,7 @@ dotenv.config({ path: './.env' });
 
 describe('AirmeetService', () => {
     let airmeetService: AirmeetService;
+    const TEST_EVENT_ID = process.env.AIRMEET_TEST_EVENT_ID || 'test-event-id';
 
     beforeAll(() => {
         const apiKey = process.env.AIRMEET_API_KEY;
@@ -33,7 +34,7 @@ describe('AirmeetService', () => {
 
     it('should fetch event attendees', async () => {
         try {
-            const attendees = await airmeetService.getEventAttendees(testEventId);
+            const attendees = await airmeetService.getEventAttendees(TEST_EVENT_ID);
             console.log('First attendee:', attendees[0]);
             expect(Array.isArray(attendees)).toBe(true);
         } catch (error) {
@@ -44,7 +45,7 @@ describe('AirmeetService', () => {
 
     it('should fetch all event data', async () => {
         try {
-            const allData = await airmeetService.getAllEventData(testEventId);
+            const allData = await airmeetService.getAllEventData(TEST_EVENT_ID);
             console.log('Event summary:', {
                 eventName: allData.event.name,
                 attendeeCount: allData.attendees.length,

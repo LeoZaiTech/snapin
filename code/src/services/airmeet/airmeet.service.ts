@@ -46,20 +46,18 @@ export class AirmeetService {
             const authUrl = 'https://api-gateway-prod.us.airmeet.com/auth';
             console.log('Authenticating with Airmeet at:', authUrl);
 
-            const response = await axios.post(authUrl, {}, {
+            // Use the client instance instead of axios directly
+            const response = await this.client.post('/v2/auth/token', {}, {
                 headers: {
                     'X-Airmeet-Access-Key': this.apiKey,
-                    'X-Airmeet-Secret-Key': this.secretKey,
-                    'Content-Type': 'application/json'
+                    'X-Airmeet-Secret-Key': this.secretKey
                 }
             });
 
-            console.log('Auth response:', response.data);
-
-            if (response.data?.data?.token) {
-                this.accessToken = response.data.data.token;
+            if (response.data?.token) {
+                this.accessToken = response.data.token;
                 // Set token expiry to 1 hour before actual expiry to be safe
-                this.tokenExpiry = Date.now() + (29 * 24 * 60 * 60 * 1000); // 29 days (tokens are valid for 30 days)
+                this.tokenExpiry = Date.now() + ((response.data.expiresIn || (29 * 24 * 60 * 60)) * 1000);
                 
                 // Update client headers with new token
                 this.client.defaults.headers.common.Authorization = `Bearer ${this.accessToken}`;
