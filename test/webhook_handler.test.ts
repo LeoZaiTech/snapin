@@ -126,9 +126,9 @@ describe('WebhookHandlerService', () => {
             const baseUrl = 'https://api.example.com';
             const airmeetId = 'event123';
 
-            mockAirmeetService.post = jest.fn().mockResolvedValue(
+            mockAirmeetService.post = jest.fn().mockImplementation(() => Promise.resolve(
                 { data: { success: true } }
-            );
+            ));
 
             await webhookHandler.registerWebhooks(baseUrl, airmeetId);
 
