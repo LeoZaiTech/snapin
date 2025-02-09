@@ -160,4 +160,26 @@ export class AirmeetService {
             throw error;
         }
     }
+
+    async post<T = any>(endpoint: string, data: any): Promise<{ data: T }> {
+        await this.ensureAuthenticated();
+        try {
+            const response = await this.client.post(endpoint, data);
+            return response;
+        } catch (error) {
+            console.error(`Error in POST ${endpoint}:`, error);
+            throw error;
+        }
+    }
+
+    async get<T = any>(endpoint: string): Promise<{ data: T }> {
+        await this.ensureAuthenticated();
+        try {
+            const response = await this.client.get(endpoint);
+            return response;
+        } catch (error) {
+            console.error(`Error in GET ${endpoint}:`, error);
+            throw error;
+        }
+    }
 }
