@@ -1,8 +1,19 @@
 import { AirmeetService } from '../code/src/services/airmeet/airmeet.service';
 import { WebhookHandlerService } from '../code/src/services/airmeet/webhook_handler';
 import { AccountLinkingService } from '../code/src/services/devrev/account_linking';
-import { RegistrationSyncService, AirmeetRegistrationData } from '../code/src/services/devrev/registration_sync';
+import { RegistrationSyncService } from '../code/src/services/devrev/registration_sync';
+import { DevRevAPIClient } from '../code/src/services/devrev/client';
 import { jest } from '@jest/globals';
+import { AxiosResponse } from 'axios';
+
+// Mock response types based on API documentation
+interface AirmeetResponse<T = any> extends AxiosResponse {
+    data: T;
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    config: any;
+}
 
 // Mock service types with required methods
 type MockAirmeetService = {
@@ -30,8 +41,20 @@ type MockRegistrationSyncService = {
 // Default mock responses
 const mockResponses = {
     airmeet: {
-        post: { data: { success: true } },
-        get: { data: {} },
+        post: {
+            status: 200,
+            statusText: 'OK',
+            data: { success: true },
+            headers: {},
+            config: {}
+        },
+        get: {
+            status: 200,
+            statusText: 'OK',
+            data: {},
+            headers: {},
+            config: {}
+        },
     },
     accountLinking: {
         contact: { id: 'contact123' },
@@ -52,25 +75,31 @@ const mockResponses = {
 
 // Mock service factories
 const createMockAirmeetService = (): MockAirmeetService => {
-    const service = new MockAirmeetService();
-    service.post.mockResolvedValue({ data: { success: true } });
-    service.get.mockResolvedValue({ data: {} });
-    service.authenticate.mockResolvedValue(undefined);
-    return service;
+    return {
+        post: jest.fn(),
+        get: jest.fn(),
+        authenticate: jest.fn(),
+        client: {},
+        baseUrl: 'https://api.airmeet.com',
+        communityId: 'test-community',
+        accessToken: 'test-token'
+    };
 };
 
 const createMockAccountLinkingService = (): MockAccountLinkingService => {
-    const service = new MockAccountLinkingService();
-    service.linkOrCreateContact.mockResolvedValue(mockResponses.accountLinking.contact);
-    service.lookupOrCreateAccount.mockResolvedValue(mockResponses.accountLinking.account);
-    return service;
+    return {
+        linkOrCreateContact: jest.fn(),
+        lookupOrCreateAccount: jest.fn(),
+        client: {}
+    };
 };
 
 const createMockRegistrationSyncService = (): MockRegistrationSyncService => {
-    const service = new MockRegistrationSyncService();
-    service.syncRegistration.mockResolvedValue(mockResponses.registration.sync);
-    service.getRegistration.mockResolvedValue(null);
-    return service;
+    return {
+        syncRegistration: jest.fn(),
+        getRegistration: jest.fn(),
+        client: {}
+    };
 };
 
 describe('WebhookHandlerService', () => {
