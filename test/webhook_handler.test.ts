@@ -114,7 +114,7 @@ describe('WebhookHandlerService', () => {
         mockRegistrationSyncService = createMockRegistrationSyncService();
 
         webhookHandler = new WebhookHandlerService(
-            mockAirmeetService,
+            mockAirmeetService as unknown as AirmeetService,
             mockAccountLinkingService,
             mockRegistrationSyncService
         );
@@ -125,7 +125,9 @@ describe('WebhookHandlerService', () => {
             const baseUrl = 'https://api.example.com';
             const airmeetId = 'event123';
 
-            mockAirmeetService.post.mockResolvedValue({ data: { success: true } });
+            mockAirmeetService.post = jest.fn().mockResolvedValue(
+                Promise.resolve({ data: { success: true } })
+            );
 
             await webhookHandler.registerWebhooks(baseUrl, airmeetId);
 
