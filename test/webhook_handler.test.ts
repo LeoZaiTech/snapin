@@ -26,11 +26,16 @@ type MockAirmeetService = {
     accessToken: string;
 };
 
-type MockAccountLinkingService = {
-    linkOrCreateContact: jest.Mock;
-    lookupOrCreateAccount: jest.Mock;
+class MockAccountLinkingService {
+    linkOrCreateContact = jest.fn();
+    lookupOrCreateAccount = jest.fn();
+    findAccountByDomain = jest.fn();
+    createAccount = jest.fn();
+    findOrCreateContact = jest.fn();
+    findContactByEmail = jest.fn();
+    createContact = jest.fn();
     client: any;
-};
+}
 
 type MockRegistrationSyncService = {
     syncRegistration: jest.Mock;
@@ -87,11 +92,7 @@ const createMockAirmeetService = (): MockAirmeetService => {
 };
 
 const createMockAccountLinkingService = (): MockAccountLinkingService => {
-    return {
-        linkOrCreateContact: jest.fn(),
-        lookupOrCreateAccount: jest.fn(),
-        client: {}
-    };
+    return new MockAccountLinkingService();
 };
 
 const createMockRegistrationSyncService = (): MockRegistrationSyncService => {
@@ -115,8 +116,8 @@ describe('WebhookHandlerService', () => {
 
         webhookHandler = new WebhookHandlerService(
             mockAirmeetService as unknown as AirmeetService,
-            mockAccountLinkingService,
-            mockRegistrationSyncService
+            mockAccountLinkingService as unknown as AccountLinkingService,
+            mockRegistrationSyncService as unknown as RegistrationSyncService
         );
     });
 
