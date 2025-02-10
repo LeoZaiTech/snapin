@@ -25,7 +25,7 @@ export class EngagementTrackingService {
         try {
             await this.client.post('/schemas.custom.set', ENGAGEMENT_SCHEMA);
             this.schemaInitialized = true;
-        } catch (error) {
+        } catch (error: any) {
             // If schema already exists, that's fine
             if (error.response?.status !== 409) {
                 throw error;
@@ -75,7 +75,7 @@ export class EngagementTrackingService {
                 }
             });
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating engagement record:', error);
             throw error;
         }
