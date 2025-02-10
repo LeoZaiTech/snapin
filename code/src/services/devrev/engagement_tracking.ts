@@ -31,9 +31,10 @@ export class EngagementTrackingService {
     }
 
     private calculateEngagementScore(activityType: 'event_entry' | 'cta_click'): number {
-        // Simple scoring model:
+        // Enhanced scoring model:
         // - Event entry: 10 points (showing initial interest)
         // - CTA click: 25 points (showing high intent)
+        // Additional points can be added based on time spent, etc.
         switch (activityType) {
             case 'event_entry':
                 return 10;
@@ -44,11 +45,32 @@ export class EngagementTrackingService {
         }
     }
 
+    private async getEventDetails(eventId: string) {
+        try {
+            const response = await this.client.get(`/events/${eventId}`);
+            return {
+                startDate: response.data.startDate,
+                endDate: response.data.endDate,
+                registrationLink: response.data.registrationLink
+            };
+        } catch (error) {
+            console.error('Error fetching event details:', error);
+            return null;
+        }
+    }
+
     async trackEventEntry(data: Omit<EngagementData, 'activity_type' | 'cta_link' | 'cta_text'>) {
         await this.ensureSchemaExists();
+        
+        // Get event details
+        const eventDetails = await this.getEventDetails(data.event_id);
+        
         return this.createEngagementRecord({
             ...data,
             activity_type: 'event_entry',
+            event_start_date: eventDetails?.startDate,
+            event_end_date: eventDetails?.endDate,
+            registration_link: eventDetails?.registrationLink,
             engagement_score: this.calculateEngagementScore('event_entry')
         });
     }
