@@ -118,6 +118,7 @@ describe('WebhookHandlerService', () => {
     let mockAccountLinkingService: MockAccountLinkingService;
     let mockRegistrationSyncService: MockRegistrationSyncService;
     let mockEngagementTrackingService: MockEngagementTrackingService;
+    let mockNotificationService: any;
 
     let webhookHandler: WebhookHandlerService;
 
@@ -131,11 +132,16 @@ describe('WebhookHandlerService', () => {
             client: {} as any
         };
 
+        mockNotificationService = {
+            notifyAccountOwner: jest.fn()
+        };
+
         webhookHandler = new WebhookHandlerService(
             mockAirmeetService as unknown as AirmeetService,
             mockAccountLinkingService as unknown as AccountLinkingService,
             mockRegistrationSyncService as unknown as RegistrationSyncService,
-            mockEngagementTrackingService as unknown as EngagementTrackingService
+            mockEngagementTrackingService as unknown as EngagementTrackingService,
+            mockNotificationService as any
         );
     });
 

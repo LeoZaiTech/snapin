@@ -2,6 +2,7 @@ import { AirmeetService } from './airmeet.service';
 import { AccountLinkingService } from '../devrev/account_linking';
 import { RegistrationSyncService } from '../devrev/registration_sync';
 import { EngagementTrackingService } from '../devrev/engagement_tracking';
+import { NotificationService } from '../devrev/notification.service';
 
 
 export interface WebhookRegistration {
@@ -57,7 +58,8 @@ export class WebhookHandlerService {
         private airmeetService: AirmeetService,
         private accountLinkingService: AccountLinkingService,
         private registrationSyncService: RegistrationSyncService,
-        private engagementTrackingService: EngagementTrackingService
+        private engagementTrackingService: EngagementTrackingService,
+        private notificationService: NotificationService
     ) {}
 
     async registerWebhooks(baseUrl: string, airmeetId?: string): Promise<void> {
@@ -231,6 +233,18 @@ export class WebhookHandlerService {
                 registration_link: registrationLink
             });
 
+            // Notify account owner of the event entry
+            if (result.accountId) {
+                await this.notificationService.notifyAccountOwner({
+                    ownerId: result.accountId,
+                    contactId: result.contactId,
+                    contactName: email,
+                    eventName,
+                    activityType: 'event_entry',
+                    timestamp: timestamp || new Date().toISOString()
+                });
+            }
+
             return { success: true, contactId: result.contactId };
         } catch (error) {
             console.error('Error handling event entry webhook:', error);
@@ -289,6 +303,18 @@ export class WebhookHandlerService {
                 utm_campaign: utmCampaign,
                 registration_link: registrationLink
             });
+
+            // Notify account owner of the CTA click
+            if (result.accountId) {
+                await this.notificationService.notifyAccountOwner({
+                    ownerId: result.accountId,
+                    contactId: result.contactId,
+                    contactName: email,
+                    eventName,
+                    activityType: 'cta_click',
+                    timestamp: timestamp || new Date().toISOString()
+                });
+            }
 
             return { success: true, contactId: result.contactId };
         } catch (error) {
