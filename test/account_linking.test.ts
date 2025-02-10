@@ -70,6 +70,7 @@ describe('AccountLinkingService', () => {
 
             // Mock the API calls
             mockClient.post
+                // First lookup by domain
                 .mockResolvedValueOnce({
                     data: { accounts: [] },
                     status: 200,
@@ -77,6 +78,15 @@ describe('AccountLinkingService', () => {
                     headers: {},
                     config: {} as any
                 })
+                // Second lookup by external refs
+                .mockResolvedValueOnce({
+                    data: { accounts: [] },
+                    status: 200,
+                    statusText: 'OK',
+                    headers: {},
+                    config: {} as any
+                })
+                // Account creation
                 .mockResolvedValueOnce({
                     data: { account: mockAccount },
                     status: 200,
@@ -84,6 +94,7 @@ describe('AccountLinkingService', () => {
                     headers: {},
                     config: {} as any
                 })
+                // Contact lookup
                 .mockResolvedValueOnce({
                     data: { rev_users: [] },
                     status: 200,
@@ -91,6 +102,7 @@ describe('AccountLinkingService', () => {
                     headers: {},
                     config: {} as any
                 })
+                // Contact creation
                 .mockResolvedValueOnce({
                     data: { rev_user: mockContact },
                     status: 200,

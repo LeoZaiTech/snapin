@@ -71,12 +71,23 @@ export class AccountLinkingService {
     }
 
     private async findAccountByDomain(domain: string) {
-        const response = await this.client.post('/accounts.list', {
+        // First try to find by domain
+        const domainResponse = await this.client.post('/accounts.list', {
             domains: [domain],
             limit: 1
         });
 
-        const accounts = response.data.accounts || [];
+        if (domainResponse.data.accounts?.length > 0) {
+            return domainResponse.data.accounts[0];
+        }
+
+        // If not found by domain, try external references
+        const externalRefResponse = await this.client.post('/accounts.list', {
+            external_refs: [domain],
+            limit: 1
+        });
+
+        const accounts = externalRefResponse.data.accounts || [];
         return accounts[0];
     }
 
@@ -85,10 +96,19 @@ export class AccountLinkingService {
         
         const response = await this.client.post('/accounts.create', {
             display_name: displayName,
-            domains: [domain]
+            domains: [domain],
+            external_refs: [domain] // Add domain as external reference for additional lookup
         });
 
-        return response.data.account;
+        console.log('Account creation response:', JSON.stringify(response.data, null, 2));
+
+        // Check for both possible response formats
+        const account = response.data?.account || response.data;
+        if (!account?.id) {
+            throw new Error('Failed to create account: Invalid response format');
+        }
+
+        return account;
     }
 
     private async findOrCreateContact(info: ContactInfo & { accountId?: string }) {
