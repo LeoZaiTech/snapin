@@ -142,4 +142,29 @@ export class AccountLinkingService {
         const response = await this.client.post('/rev-users.create', contactData);
         return response.data.rev_user;
     }
+
+    async linkOrCreateContact(info: {
+        email: string;
+        firstName: string;
+        lastName: string;
+        city?: string;
+        country?: string;
+        jobTitle?: string;
+        organization?: string;
+    }) {
+        const result = await this.lookupOrCreateAccount(info.email);
+        
+        // Create or update the contact with the full information
+        const contact = await this.findOrCreateContact({
+            email: info.email,
+            displayName: `${info.firstName} ${info.lastName}`,
+            phoneNumber: undefined,
+            city: info.city,
+            country: info.country,
+            jobTitle: info.jobTitle,
+            accountId: result.accountId
+        });
+
+        return contact;
+    }
 }

@@ -1,6 +1,7 @@
 import { AirmeetService } from './airmeet.service';
 import { AccountLinkingService } from '../devrev/account_linking';
 import { RegistrationSyncService } from '../devrev/registration_sync';
+import { EngagementTrackingService } from '../devrev/engagement_tracking';
 
 export interface WebhookRegistration {
     name: string;
