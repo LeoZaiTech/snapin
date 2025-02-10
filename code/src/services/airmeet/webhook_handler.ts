@@ -120,8 +120,7 @@ export class WebhookHandlerService {
                 utmCampaign,
                 utmTerm,
                 utmContent,
-                phoneNumber,
-                organization
+                phoneNumber
             } = payload;
 
             // First find or create the contact
@@ -136,16 +135,13 @@ export class WebhookHandlerService {
                 registrationDateTime: registrationDateTime || new Date().toISOString(),
                 airmeetId: eventId,
                 airmeetName: eventName,
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                city: city,
-                country: country,
+                email,
+                firstName: '', 
+                lastName: '', 
+                city,
+                country,
                 designation: jobTitle,
-                organization: organization,
-                utmSource: utmSource,
-                utmMedium: utmMedium,
-                utmCampaign: utmCampaign
+                ...(phoneNumber && { customFields: [{ fieldId: 'phone_number', value: phoneNumber }] })
             });
 
             return { success: true, contactId: result.contactId };
