@@ -123,15 +123,27 @@ export class WebhookHandlerService {
                 phoneNumber
             } = payload;
 
-            // First find or create the contact
-            const result = await this.accountLinkingService.lookupOrCreateAccount(email);
-            if (!result.contactId) {
+            // Get domain for organization
+            const domain = email.split('@')[1];
+
+            // Create or link contact with full information
+            const contact = await this.accountLinkingService.linkOrCreateContact({
+                email,
+                firstName: firstName || '',
+                lastName: lastName || '',
+                city,
+                country,
+                jobTitle,
+                organization: domain
+            });
+            if (!contact.id) {
                 throw new Error(`No contact found or created for email: ${email}`);
             }
+            const contactId = contact.id;
 
             // Track the registration
             await this.registrationSyncService.syncRegistration({
-                contactId: result.contactId,
+                contactId,
                 registrationDateTime: registrationDateTime || new Date().toISOString(),
                 airmeetId: eventId,
                 airmeetName: eventName,
@@ -150,7 +162,7 @@ export class WebhookHandlerService {
                 registration_link: registrationLink
             });
 
-            return { success: true, contactId: result.contactId };
+            return { success: true, contactId };
         } catch (error) {
             console.error('Error handling registration webhook:', error);
             throw error;
