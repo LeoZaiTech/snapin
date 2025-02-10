@@ -141,6 +141,17 @@ export class WebhookHandlerService {
             }
             const contactId = contact.id;
 
+            // Get event details for registration
+            let eventStartDate;
+            let eventEndDate;
+            try {
+                const event = await this.airmeetService.getEvent(eventId);
+                eventStartDate = event.startDate;
+                eventEndDate = event.endDate;
+            } catch (error) {
+                console.warn(`Could not fetch event details for registration in event ${eventId}:`, error);
+            }
+
             // Track the registration
             await this.registrationSyncService.syncRegistration({
                 contactId,
@@ -159,7 +170,9 @@ export class WebhookHandlerService {
                 utm_campaign: utmCampaign,
                 utm_term: utmTerm,
                 utm_content: utmContent,
-                registration_link: registrationLink
+                registration_link: registrationLink,
+                event_start_date: eventStartDate,
+                event_end_date: eventEndDate
             });
 
             return { success: true, contactId };
@@ -188,13 +201,20 @@ export class WebhookHandlerService {
                 throw new Error(`No contact found or created for email: ${email}`);
             }
 
-            // Get registration details if available
+            // Get event and registration details
             let registrationLink;
+            let eventStartDate;
+            let eventEndDate;
             try {
-                const registration = await this.airmeetService.getParticipantRegistration(eventId, email);
+                const [registration, event] = await Promise.all([
+                    this.airmeetService.getParticipantRegistration(eventId, email),
+                    this.airmeetService.getEvent(eventId)
+                ]);
                 registrationLink = registration?.registrationLink;
+                eventStartDate = event.startDate;
+                eventEndDate = event.endDate;
             } catch (error) {
-                console.warn(`Could not fetch registration details for ${email} in event ${eventId}:`, error);
+                console.warn(`Could not fetch event details for ${email} in event ${eventId}:`, error);
             }
 
             // Track the event entry
@@ -203,6 +223,8 @@ export class WebhookHandlerService {
                 event_id: eventId,
                 event_name: eventName,
                 activity_timestamp: timestamp || new Date().toISOString(),
+                event_start_date: eventStartDate,
+                event_end_date: eventEndDate,
                 utm_source: utmSource,
                 utm_medium: utmMedium,
                 utm_campaign: utmCampaign,
@@ -236,13 +258,20 @@ export class WebhookHandlerService {
                 throw new Error(`No contact found or created for email: ${email}`);
             }
 
-            // Get registration details if available
+            // Get event and registration details
             let registrationLink;
+            let eventStartDate;
+            let eventEndDate;
             try {
-                const registration = await this.airmeetService.getParticipantRegistration(eventId, email);
+                const [registration, event] = await Promise.all([
+                    this.airmeetService.getParticipantRegistration(eventId, email),
+                    this.airmeetService.getEvent(eventId)
+                ]);
                 registrationLink = registration?.registrationLink;
+                eventStartDate = event.startDate;
+                eventEndDate = event.endDate;
             } catch (error) {
-                console.warn(`Could not fetch registration details for ${email} in event ${eventId}:`, error);
+                console.warn(`Could not fetch event details for ${email} in event ${eventId}:`, error);
             }
 
             // Track the CTA click
@@ -251,6 +280,8 @@ export class WebhookHandlerService {
                 event_id: eventId,
                 event_name: eventName,
                 activity_timestamp: timestamp || new Date().toISOString(),
+                event_start_date: eventStartDate,
+                event_end_date: eventEndDate,
                 cta_link: ctaLink,
                 cta_text: ctaText,
                 utm_source: utmSource,
