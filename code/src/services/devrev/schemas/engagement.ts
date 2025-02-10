@@ -1,3 +1,22 @@
+export interface BaseEngagementData {
+    contact_id: string;
+    event_id: string;
+    event_name: string;
+    activity_timestamp: string;
+}
+
+export interface EventEntryData extends BaseEngagementData {}
+
+export interface CTAClickData extends BaseEngagementData {
+    cta_link: string;
+    cta_text: string;
+}
+
+export const ENGAGEMENT_TYPES = {
+    EVENT_ENTRY: 'event_entry',
+    CTA_CLICK: 'cta_click'
+} as const;
+
 export const ENGAGEMENT_SCHEMA = {
     type: 'tenant_fragment',
     description: 'Attributes for Airmeet engagement tracking',

@@ -2,6 +2,7 @@ import { AirmeetService } from '../code/src/services/airmeet/airmeet.service';
 import { WebhookHandlerService } from '../code/src/services/airmeet/webhook_handler';
 import { AccountLinkingService } from '../code/src/services/devrev/account_linking';
 import { RegistrationSyncService } from '../code/src/services/devrev/registration_sync';
+import { EngagementTrackingService } from '../code/src/services/devrev/engagement_tracking';
 
 import { DevRevAPIClient } from '../code/src/services/devrev/client';
 import { jest } from '@jest/globals';
@@ -41,6 +42,12 @@ class MockAccountLinkingService {
 type MockRegistrationSyncService = {
     syncRegistration: jest.Mock;
     getRegistration: jest.Mock;
+    client: any;
+};
+
+type MockEngagementTrackingService = {
+    trackEventEntry: jest.Mock;
+    trackCTAClick: jest.Mock;
     client: any;
 };
 
@@ -110,6 +117,7 @@ describe('WebhookHandlerService', () => {
     let mockAirmeetService: MockAirmeetService;
     let mockAccountLinkingService: MockAccountLinkingService;
     let mockRegistrationSyncService: MockRegistrationSyncService;
+    let mockEngagementTrackingService: MockEngagementTrackingService;
 
     let webhookHandler: WebhookHandlerService;
 
@@ -117,12 +125,17 @@ describe('WebhookHandlerService', () => {
         mockAirmeetService = createMockAirmeetService();
         mockAccountLinkingService = createMockAccountLinkingService();
         mockRegistrationSyncService = createMockRegistrationSyncService();
-
+        mockEngagementTrackingService = {
+            trackEventEntry: jest.fn(),
+            trackCTAClick: jest.fn(),
+            client: {} as any
+        };
 
         webhookHandler = new WebhookHandlerService(
             mockAirmeetService as unknown as AirmeetService,
             mockAccountLinkingService as unknown as AccountLinkingService,
-            mockRegistrationSyncService as unknown as RegistrationSyncService
+            mockRegistrationSyncService as unknown as RegistrationSyncService,
+            mockEngagementTrackingService as unknown as EngagementTrackingService
         );
     });
 

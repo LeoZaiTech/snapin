@@ -1,6 +1,7 @@
 import { AirmeetService } from './airmeet.service';
 import { AccountLinkingService } from '../devrev/account_linking';
 import { RegistrationSyncService } from '../devrev/registration_sync';
+import { EngagementTrackingService } from '../devrev/engagement_tracking';
 
 
 export interface WebhookRegistration {
@@ -16,7 +17,8 @@ export class WebhookHandlerService {
     constructor(
         private airmeetService: AirmeetService,
         private accountLinkingService: AccountLinkingService,
-        private registrationSyncService: RegistrationSyncService
+        private registrationSyncService: RegistrationSyncService,
+        private engagementTrackingService: EngagementTrackingService
     ) {}
 
     async registerWebhooks(baseUrl: string, airmeetId?: string): Promise<void> {
@@ -113,17 +115,67 @@ export class WebhookHandlerService {
     }
 
     async handleEventEntryWebhook(payload: any) {
-        // TODO: Implement event entry tracking
-        // This will be used for intent signals and engagement tracking
-        console.log('Event entry webhook received:', payload);
-        return { success: true };
+        try {
+            const {
+                email,
+                airmeet_id: eventId,
+                airmeet_name: eventName,
+                timestamp
+            } = payload;
+
+            // First find or create the contact
+            const result = await this.accountLinkingService.lookupOrCreateAccount(email);
+            if (!result.contactId) {
+                throw new Error(`No contact found or created for email: ${email}`);
+            }
+
+            // Track the event entry
+            await this.engagementTrackingService.trackEventEntry({
+                contact_id: result.contactId,
+                event_id: eventId,
+                event_name: eventName,
+                activity_timestamp: timestamp || new Date().toISOString()
+            });
+
+            return { success: true, contactId: result.contactId };
+        } catch (error) {
+            console.error('Error handling event entry webhook:', error);
+            throw error;
+        }
     }
 
     async handleCTAClickWebhook(payload: any) {
-        // TODO: Implement CTA click tracking
-        // This will be used for intent signals and engagement tracking
-        console.log('CTA click webhook received:', payload);
-        return { success: true };
+        try {
+            const {
+                email,
+                airmeet_id: eventId,
+                airmeet_name: eventName,
+                timestamp,
+                cta_link: ctaLink,
+                cta_text: ctaText
+            } = payload;
+
+            // First find or create the contact
+            const result = await this.accountLinkingService.lookupOrCreateAccount(email);
+            if (!result.contactId) {
+                throw new Error(`No contact found or created for email: ${email}`);
+            }
+
+            // Track the CTA click
+            await this.engagementTrackingService.trackCTAClick({
+                contact_id: result.contactId,
+                event_id: eventId,
+                event_name: eventName,
+                activity_timestamp: timestamp || new Date().toISOString(),
+                cta_link: ctaLink,
+                cta_text: ctaText
+            });
+
+            return { success: true, contactId: result.contactId };
+        } catch (error) {
+            console.error('Error handling CTA click webhook:', error);
+            throw error;
+        }
     }
 
     async listActiveWebhooks(airmeetId?: string): Promise<any> {
