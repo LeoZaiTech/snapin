@@ -13,6 +13,28 @@ export interface WebhookRegistration {
     airmeetId?: string;
 }
 
+export interface AirmeetEventEntryPayload {
+    email: string;
+    airmeet_id: string;
+    airmeet_name: string;
+    timestamp: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+}
+
+export interface AirmeetCTAClickPayload {
+    email: string;
+    airmeet_id: string;
+    airmeet_name: string;
+    timestamp: string;
+    cta_link: string;
+    cta_text: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+}
+
 export class WebhookHandlerService {
     constructor(
         private airmeetService: AirmeetService,
@@ -116,13 +138,16 @@ export class WebhookHandlerService {
         return { success: true, contactId: contact.id };
     }
 
-    async handleEventEntryWebhook(payload: any) {
+    async handleEventEntryWebhook(payload: AirmeetEventEntryPayload) {
         try {
             const {
                 email,
                 airmeet_id: eventId,
                 airmeet_name: eventName,
-                timestamp
+                timestamp,
+                utm_source: utmSource,
+                utm_medium: utmMedium,
+                utm_campaign: utmCampaign
             } = payload;
 
             // First find or create the contact
@@ -146,7 +171,7 @@ export class WebhookHandlerService {
         }
     }
 
-    async handleCTAClickWebhook(payload: any) {
+    async handleCTAClickWebhook(payload: AirmeetCTAClickPayload) {
         try {
             const {
                 email,

@@ -1,12 +1,16 @@
 import { DevRevAPIClient } from './client';
 import { ENGAGEMENT_SCHEMA } from './schemas/engagement';
 
-export interface EngagementData {
+interface BaseEngagementData {
     contact_id: string;
     event_id: string;
     event_name: string;
-    activity_type: 'event_entry' | 'cta_click';
     activity_timestamp: string;
+    engagement_score: number;
+}
+
+export interface EngagementData extends BaseEngagementData {
+    activity_type: 'event_entry' | 'cta_click';
     cta_link?: string;
     cta_text?: string;
 }
@@ -34,11 +38,26 @@ export class EngagementTrackingService {
         }
     }
 
+    private calculateEngagementScore(activityType: 'event_entry' | 'cta_click'): number {
+        // Simple scoring model:
+        // - Event entry: 10 points (showing initial interest)
+        // - CTA click: 25 points (showing high intent)
+        switch (activityType) {
+            case 'event_entry':
+                return 10;
+            case 'cta_click':
+                return 25;
+            default:
+                return 0;
+        }
+    }
+
     async trackEventEntry(data: Omit<EngagementData, 'activity_type' | 'cta_link' | 'cta_text'>) {
         await this.ensureSchemaExists();
         return this.createEngagementRecord({
             ...data,
-            activity_type: 'event_entry'
+            activity_type: 'event_entry',
+            engagement_score: this.calculateEngagementScore('event_entry')
         });
     }
 
@@ -50,7 +69,8 @@ export class EngagementTrackingService {
         await this.ensureSchemaExists();
         return this.createEngagementRecord({
             ...data,
-            activity_type: 'cta_click'
+            activity_type: 'cta_click',
+            engagement_score: this.calculateEngagementScore('cta_click')
         });
     }
 
@@ -71,7 +91,8 @@ export class EngagementTrackingService {
                     tnt__activity_type: data.activity_type,
                     tnt__activity_timestamp: data.activity_timestamp,
                     ...(data.cta_link && { tnt__cta_link: data.cta_link }),
-                    ...(data.cta_text && { tnt__cta_text: data.cta_text })
+                    ...(data.cta_text && { tnt__cta_text: data.cta_text }),
+                    ...(data.engagement_score !== undefined && { tnt__engagement_score: data.engagement_score })
                 }
             });
             return response.data;

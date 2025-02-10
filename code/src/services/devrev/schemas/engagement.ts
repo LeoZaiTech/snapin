@@ -11,6 +11,7 @@ export interface BaseEngagementData {
     utm_campaign?: string;
     utm_term?: string;
     utm_content?: string;
+    engagement_score?: number;
 }
 
 export interface EventEntryData extends BaseEngagementData {}
@@ -114,6 +115,12 @@ export const ENGAGEMENT_SCHEMA = {
             name: 'utm_content',
             field_type: 'string',
             description: 'UTM content parameter from registration',
+            required: false
+        },
+        {
+            name: 'engagement_score',
+            field_type: 'number',
+            description: 'Engagement score for the activity (0-100)',
             required: false
         }
     ],
