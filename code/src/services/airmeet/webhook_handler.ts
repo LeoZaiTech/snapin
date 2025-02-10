@@ -141,7 +141,13 @@ export class WebhookHandlerService {
                 city,
                 country,
                 designation: jobTitle,
-                ...(phoneNumber && { customFields: [{ fieldId: 'phone_number', value: phoneNumber }] })
+                ...(phoneNumber && { customFields: [{ fieldId: 'phone_number', value: phoneNumber }] }),
+                utm_source: utmSource,
+                utm_medium: utmMedium,
+                utm_campaign: utmCampaign,
+                utm_term: utmTerm,
+                utm_content: utmContent,
+                registration_link: registrationLink
             });
 
             return { success: true, contactId: result.contactId };
@@ -175,7 +181,10 @@ export class WebhookHandlerService {
                 contact_id: result.contactId,
                 event_id: eventId,
                 event_name: eventName,
-                activity_timestamp: timestamp || new Date().toISOString()
+                activity_timestamp: timestamp || new Date().toISOString(),
+                utm_source: utmSource,
+                utm_medium: utmMedium,
+                utm_campaign: utmCampaign
             });
 
             return { success: true, contactId: result.contactId };
@@ -193,7 +202,10 @@ export class WebhookHandlerService {
                 airmeet_name: eventName,
                 timestamp,
                 cta_link: ctaLink,
-                cta_text: ctaText
+                cta_text: ctaText,
+                utm_source: utmSource,
+                utm_medium: utmMedium,
+                utm_campaign: utmCampaign
             } = payload;
 
             // First find or create the contact
@@ -209,7 +221,10 @@ export class WebhookHandlerService {
                 event_name: eventName,
                 activity_timestamp: timestamp || new Date().toISOString(),
                 cta_link: ctaLink,
-                cta_text: ctaText
+                cta_text: ctaText,
+                utm_source: utmSource,
+                utm_medium: utmMedium,
+                utm_campaign: utmCampaign
             });
 
             return { success: true, contactId: result.contactId };
