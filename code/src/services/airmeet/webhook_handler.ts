@@ -75,9 +75,11 @@ export class WebhookHandlerService {
             airmeetId,
             airmeetName,
             registrationDateTime,
+            registrationLink,
             utmSource,
             utmMedium,
             utmCampaign,
+            utmContent,
             customFields
         } = payload;
 
