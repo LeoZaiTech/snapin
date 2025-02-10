@@ -99,6 +99,20 @@ export class AirmeetService {
         }
     }
 
+    async getParticipantRegistration(eventId: string, email: string): Promise<{ registrationLink: string } | null> {
+        await this.ensureAuthenticated();
+        try {
+            const response = await this.client.get(`/v2/community/${this.communityId}/events/${eventId}/participants`, {
+                params: { email }
+            });
+            const participant = response.data?.participants?.[0];
+            return participant ? { registrationLink: participant.registrationLink } : null;
+        } catch (error) {
+            console.error('Error fetching participant registration:', error);
+            return null;
+        }
+    }
+
     async getEventAttendees(eventId: string): Promise<AirmeetAttendee[]> {
         await this.ensureAuthenticated();
         try {

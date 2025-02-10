@@ -176,6 +176,15 @@ export class WebhookHandlerService {
                 throw new Error(`No contact found or created for email: ${email}`);
             }
 
+            // Get registration details if available
+            let registrationLink;
+            try {
+                const registration = await this.airmeetService.getParticipantRegistration(eventId, email);
+                registrationLink = registration?.registrationLink;
+            } catch (error) {
+                console.warn(`Could not fetch registration details for ${email} in event ${eventId}:`, error);
+            }
+
             // Track the event entry
             await this.engagementTrackingService.trackEventEntry({
                 contact_id: result.contactId,
@@ -184,7 +193,8 @@ export class WebhookHandlerService {
                 activity_timestamp: timestamp || new Date().toISOString(),
                 utm_source: utmSource,
                 utm_medium: utmMedium,
-                utm_campaign: utmCampaign
+                utm_campaign: utmCampaign,
+                registration_link: registrationLink
             });
 
             return { success: true, contactId: result.contactId };
@@ -214,6 +224,15 @@ export class WebhookHandlerService {
                 throw new Error(`No contact found or created for email: ${email}`);
             }
 
+            // Get registration details if available
+            let registrationLink;
+            try {
+                const registration = await this.airmeetService.getParticipantRegistration(eventId, email);
+                registrationLink = registration?.registrationLink;
+            } catch (error) {
+                console.warn(`Could not fetch registration details for ${email} in event ${eventId}:`, error);
+            }
+
             // Track the CTA click
             await this.engagementTrackingService.trackCTAClick({
                 contact_id: result.contactId,
@@ -224,7 +243,8 @@ export class WebhookHandlerService {
                 cta_text: ctaText,
                 utm_source: utmSource,
                 utm_medium: utmMedium,
-                utm_campaign: utmCampaign
+                utm_campaign: utmCampaign,
+                registration_link: registrationLink
             });
 
             return { success: true, contactId: result.contactId };
