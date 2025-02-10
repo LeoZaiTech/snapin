@@ -2,6 +2,7 @@ import { AirmeetService } from '../code/src/services/airmeet/airmeet.service';
 import { WebhookHandlerService } from '../code/src/services/airmeet/webhook_handler';
 import { AccountLinkingService } from '../code/src/services/devrev/account_linking';
 import { RegistrationSyncService } from '../code/src/services/devrev/registration_sync';
+
 import { DevRevAPIClient } from '../code/src/services/devrev/client';
 import { jest } from '@jest/globals';
 import { AxiosResponse } from 'axios';
@@ -42,6 +43,8 @@ type MockRegistrationSyncService = {
     getRegistration: jest.Mock;
     client: any;
 };
+
+
 
 // Default mock responses
 const mockResponses = {
@@ -107,12 +110,14 @@ describe('WebhookHandlerService', () => {
     let mockAirmeetService: MockAirmeetService;
     let mockAccountLinkingService: MockAccountLinkingService;
     let mockRegistrationSyncService: MockRegistrationSyncService;
+
     let webhookHandler: WebhookHandlerService;
 
     beforeEach(() => {
         mockAirmeetService = createMockAirmeetService();
         mockAccountLinkingService = createMockAccountLinkingService();
         mockRegistrationSyncService = createMockRegistrationSyncService();
+
 
         webhookHandler = new WebhookHandlerService(
             mockAirmeetService as unknown as AirmeetService,
