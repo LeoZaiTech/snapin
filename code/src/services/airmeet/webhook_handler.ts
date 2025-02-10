@@ -35,6 +35,23 @@ export interface AirmeetCTAClickPayload {
     utm_campaign?: string;
 }
 
+export interface AirmeetRegistrationPayload {
+    email: string;
+    airmeet_id: string;
+    airmeet_name: string;
+    registration_link: string;
+    timestamp: string;
+    phone_number?: string;
+    city?: string;
+    country?: string;
+    job_title?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+}
+
 export class WebhookHandlerService {
     constructor(
         private airmeetService: AirmeetService,
@@ -86,56 +103,57 @@ export class WebhookHandlerService {
     }
 
     async handleRegistrationWebhook(payload: any) {
-        const {
-            email,
-            firstName,
-            lastName,
-            city,
-            country,
-            designation,
-            organisation,
-            airmeetId,
-            airmeetName,
-            registrationDateTime,
-            registrationLink,
-            utmSource,
-            utmMedium,
-            utmCampaign,
-            utmContent,
-            customFields
-        } = payload;
+        try {
+            const {
+                email,
+                firstName,
+                lastName,
+                city,
+                country,
+                designation: jobTitle,
+                airmeetId: eventId,
+                airmeetName: eventName,
+                registrationDateTime,
+                registrationLink,
+                utmSource,
+                utmMedium,
+                utmCampaign,
+                utmTerm,
+                utmContent,
+                phoneNumber,
+                organization
+            } = payload;
 
-        // First, handle account linking and contact creation
-        const contact = await this.accountLinkingService.linkOrCreateContact({
-            email,
-            firstName,
-            lastName,
-            city,
-            country,
-            jobTitle: designation,
-            organization: organisation
-        });
+            // First find or create the contact
+            const result = await this.accountLinkingService.lookupOrCreateAccount(email);
+            if (!result.contactId) {
+                throw new Error(`No contact found or created for email: ${email}`);
+            }
 
-        // Then sync the registration data
-        await this.registrationSyncService.syncRegistration({
-            contactId: contact.id,
-            registrationDateTime,
-            airmeetName,
-            airmeetId,
-            firstName,
-            lastName,
-            email,
-            city,
-            country,
-            designation,
-            organization: organisation,
-            utmSource,
-            utmMedium,
-            utmCampaign,
-            customFields
-        });
+            // Track the registration
+            await this.registrationSyncService.syncRegistration({
+                contactId: result.contactId,
+                registrationDateTime: registrationDateTime || new Date().toISOString(),
+                airmeetId: eventId,
+                airmeetName: eventName,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                city: city,
+                country: country,
+                designation: jobTitle,
+                organization: organization,
+                utmSource: utmSource,
+                utmMedium: utmMedium,
+                utmCampaign: utmCampaign
+            });
 
-        return { success: true, contactId: contact.id };
+            return { success: true, contactId: result.contactId };
+        } catch (error) {
+            console.error('Error handling registration webhook:', error);
+            throw error;
+        }
+
     }
 
     async handleEventEntryWebhook(payload: AirmeetEventEntryPayload) {
