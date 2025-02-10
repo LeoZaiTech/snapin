@@ -1,5 +1,6 @@
 import { DevRevAPIClient } from './client';
 import { ENGAGEMENT_SCHEMA, BaseEngagementData } from './schemas/engagement';
+import { AirmeetService } from '../airmeet/airmeet.service';
 
 export interface EngagementData extends BaseEngagementData {
     activity_type: 'event_entry' | 'cta_click';
@@ -11,7 +12,10 @@ export class EngagementTrackingService {
     private readonly LEAF_TYPE = 'airmeet_engagement';
     private schemaInitialized = false;
 
-    constructor(private readonly client: DevRevAPIClient) {}
+    constructor(
+        private readonly client: DevRevAPIClient,
+        private readonly airmeetService: AirmeetService
+    ) {}
 
     private async ensureSchemaExists() {
         if (this.schemaInitialized) {
@@ -47,11 +51,10 @@ export class EngagementTrackingService {
 
     private async getEventDetails(eventId: string) {
         try {
-            const response = await this.client.get(`/events/${eventId}`);
+            const event = await this.airmeetService.getEvent(eventId);
             return {
-                startDate: response.data.startDate,
-                endDate: response.data.endDate,
-                registrationLink: response.data.registrationLink
+                startDate: event.startDate,
+                endDate: event.endDate
             };
         } catch (error) {
             console.error('Error fetching event details:', error);
@@ -70,7 +73,6 @@ export class EngagementTrackingService {
             activity_type: 'event_entry',
             event_start_date: eventDetails?.startDate,
             event_end_date: eventDetails?.endDate,
-            registration_link: eventDetails?.registrationLink,
             engagement_score: this.calculateEngagementScore('event_entry')
         });
     }
