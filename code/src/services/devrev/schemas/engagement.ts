@@ -3,6 +3,14 @@ export interface BaseEngagementData {
     event_id: string;
     event_name: string;
     activity_timestamp: string;
+    event_start_date?: string;
+    event_end_date?: string;
+    registration_link?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
 }
 
 export interface EventEntryData extends BaseEngagementData {}
@@ -58,6 +66,54 @@ export const ENGAGEMENT_SCHEMA = {
             name: 'cta_text',
             field_type: 'string',
             description: 'Text of the CTA button (for CTA clicks only)',
+            required: false
+        },
+        {
+            name: 'event_start_date',
+            field_type: 'datetime',
+            description: 'Start date and time of the event',
+            required: false
+        },
+        {
+            name: 'event_end_date',
+            field_type: 'datetime',
+            description: 'End date and time of the event',
+            required: false
+        },
+        {
+            name: 'registration_link',
+            field_type: 'string',
+            description: 'Link used for event registration',
+            required: false
+        },
+        {
+            name: 'utm_source',
+            field_type: 'string',
+            description: 'UTM source parameter from registration',
+            required: false
+        },
+        {
+            name: 'utm_medium',
+            field_type: 'string',
+            description: 'UTM medium parameter from registration',
+            required: false
+        },
+        {
+            name: 'utm_campaign',
+            field_type: 'string',
+            description: 'UTM campaign parameter from registration',
+            required: false
+        },
+        {
+            name: 'utm_term',
+            field_type: 'string',
+            description: 'UTM term parameter from registration',
+            required: false
+        },
+        {
+            name: 'utm_content',
+            field_type: 'string',
+            description: 'UTM content parameter from registration',
             required: false
         }
     ],
