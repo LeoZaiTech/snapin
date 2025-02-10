@@ -67,12 +67,15 @@ export class EngagementTrackingService {
         
         // Get event details
         const eventDetails = await this.getEventDetails(data.event_id);
+        if (!eventDetails) {
+            console.warn(`Could not fetch event details for event ${data.event_id}`);
+        }
         
         return this.createEngagementRecord({
             ...data,
             activity_type: 'event_entry',
-            event_start_date: eventDetails?.startDate,
-            event_end_date: eventDetails?.endDate,
+            event_start_date: eventDetails?.startDate || data.event_start_date,
+            event_end_date: eventDetails?.endDate || data.event_end_date,
             engagement_score: this.calculateEngagementScore('event_entry')
         });
     }
