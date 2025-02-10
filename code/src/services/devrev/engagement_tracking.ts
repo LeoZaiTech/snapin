@@ -1,13 +1,5 @@
 import { DevRevAPIClient } from './client';
-import { ENGAGEMENT_SCHEMA } from './schemas/engagement';
-
-interface BaseEngagementData {
-    contact_id: string;
-    event_id: string;
-    event_name: string;
-    activity_timestamp: string;
-    engagement_score: number;
-}
+import { ENGAGEMENT_SCHEMA, BaseEngagementData } from './schemas/engagement';
 
 export interface EngagementData extends BaseEngagementData {
     activity_type: 'event_entry' | 'cta_click';
