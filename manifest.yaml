@@ -5,25 +5,6 @@ description: "Syncs attendee data between Airmeet and DevRev"
 service_account:
   display_name: Airmeet Sync Bot
 
-keyrings:
-  organization:
-    - name: airmeet_api_key
-      display_name: Airmeet API Key
-      description: Secure API Key storage for Airmeet
-      types:
-        - api_key
-
-connections:
-  - name: airmeet
-    description: Airmeet API connection
-    type: http
-    config:
-      base_url: "https://api-gateway.airmeet.com/prod"
-      auth_type: keyring
-      keyring: airmeet_api_key
-      headers:
-        Content-Type: application/json
-
 inputs:
   organization:
     - name: airmeet_region
@@ -34,24 +15,35 @@ inputs:
         display_name: Airmeet Region
     - name: account_linking_enabled
       description: Enable account linking and creation
-      field_type: boolean
+      field_type: bool
       default_value: true
       ui:
         display_name: Enable Account Linking
+    - name: custom_object_name
+      description: Name of the custom object to map events to
+      field_type: text
+      default_value: "airmeet_event"
+      ui:
+        display_name: Custom Object Name
 
-# Event source reference: https://docs.devrev.ai/snap-ins/references/event_sources#supported-event-source-types-and-their-event-types.
 event_sources:
   organization:
     - name: airmeet-webhooks
       description: Airmeet webhook events listener
       display_name: Airmeet Events
-      type: http-endpoint
+      type: flow-custom-webhook
       config:
-        event_types:
-          - attendee.registered
-          - attendee.joined
-          - attendee.booth_visit
-          - attendee.question_asked
+        policy: |
+          package rego
+          output = {"event": event, "event_key": event_key} {
+            event := input.request.body
+            event_key := "airmeet.registration"
+          } else = {"response": response} {
+            response := {
+              "status_code": 400,
+              "body": "Invalid request format"
+            }
+          }
 
 # Functions reference: https://docs.devrev.ai/snap-ins/references/functions.
 functions:
