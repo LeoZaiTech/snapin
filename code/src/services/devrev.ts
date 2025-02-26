@@ -1,4 +1,8 @@
-import { Context } from '@devrev/typescript-sdk';
+interface DevRevContext {
+  secrets: {
+    service_account_token: string;
+  };
+}
 
 export interface ContactData {
   email: string;
@@ -10,13 +14,13 @@ export interface ContactData {
   customFields?: Record<string, string>;
 }
 
-export const findExistingContact = async (context: Context, email: string) => {
+export const findExistingContact = async (context: DevRevContext, email: string) => {
   // TODO: Implement actual DevRev API call
   console.log(`Looking for contact with email: ${email}`);
   return null;
 };
 
-export const createContact = async (context: Context, data: ContactData) => {
+export const createContact = async (context: DevRevContext, data: ContactData) => {
   // TODO: Implement actual DevRev API call
   console.log('Creating contact:', data);
   return { id: 'mock-contact-id' };
