@@ -5,45 +5,70 @@ description: "Syncs attendee data between Airmeet and DevRev"
 service_account:
   display_name: Airmeet Sync Bot
 
-inputs:
-  organization:
-    - name: airmeet_region
-      description: Airmeet API Region (default, eu, us)
-      field_type: text
-      default_value: "default"
-      ui:
-        display_name: Airmeet Region
-    - name: account_linking_enabled
-      description: Enable account linking and creation
-      field_type: bool
-      default_value: true
-      ui:
-        display_name: Enable Account Linking
-    - name: custom_object_name
-      description: Name of the custom object to map events to
-      field_type: text
-      default_value: "airmeet_event"
-      ui:
-        display_name: Custom Object Name
-
 event_sources:
   organization:
     - name: airmeet-webhooks
-      description: Airmeet webhook events listener
-      display_name: Airmeet Events
       type: flow-custom-webhook
+      display_name: Airmeet Events
+      setup_instructions: |
+        ## Please copy the source URL from here:
+        URL: `{{source.trigger_url}}`
       config:
         policy: |
           package rego
           output = {"event": event, "event_key": event_key} {
             event := input.request.body
-            event_key := "airmeet.registration"
-          } else = {"response": response} {
-            response := {
-              "status_code": 400,
-              "body": "Invalid request format"
-            }
+            event_key := "airmeet_registration"
           }
+
+inputs:
+  organization:
+    - name: create_contact_account
+      description: Enable this option to create and link accounts and contacts for registrations. If disabled, accounts and contacts won't be created.
+      field_type: bool
+      is_required: true
+      default_value: true
+      ui:
+        display_name: Create Account and Contact
+    - name: leaf_type
+      description: Leaf type for Airmeet registration custom objects
+      field_type: text
+      default_value: 'airmeet_registration'
+      ui:
+        display_name: Custom Object Type
+      is_required: true
+    - name: custom_fields_mapping
+      description: Mapping from Airmeet registration fields to custom object fields
+      field_type: text
+      default_value: '{ "name": "tnt__attendee_name", "email": "tnt__attendee_email", "event_id": "tnt__event_id" }'
+      ui:
+        display_name: Registration to Custom Object Mapping
+      is_required: true
+    - name: account_mapping
+      description: Mapping from Airmeet fields to account fields
+      field_type: text
+      default_value: '{ "company": "display_name" }'
+      ui:
+        display_name: Registration to Account Mapping
+      is_required: false
+    - name: contact_mapping
+      description: Mapping from Airmeet fields to contact fields
+      field_type: text
+      default_value: '{ "name": "display_name", "email": "email" }'
+      ui:
+        display_name: Registration to Contact Mapping
+      is_required: false
+
+functions:
+  - name: handle_registration
+    description: Creates custom objects, accounts, and contacts from Airmeet registrations
+
+automations:
+  - name: process_registration
+    source: airmeet-webhooks
+    event_types:
+      - custom:airmeet_registration
+    function: handle_registration
 
 # Functions reference: https://docs.devrev.ai/snap-ins/references/functions.
 functions:
