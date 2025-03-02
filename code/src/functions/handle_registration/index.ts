@@ -1,7 +1,8 @@
-import { client, publicSDK } from "@devrev/typescript-sdk";
-import { excludeGenericDomain, extractDomainFromEmail } from '../../utils/domain';
+import { client, publicSDK } from '@devrev/typescript-sdk';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+
+import { excludeGenericDomain, extractDomainFromEmail } from '../../utils/domain';
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
@@ -42,7 +43,7 @@ async function handleEvent(event: any) {
     console.log(`Checking for existing account with domain: ${domain}`);
     try {
       const accountResponse = await devrevSDK.accountsList({
-        display_name: [domain] // Using display_name as a fallback since domains isn't supported
+        display_name: [domain], // Using display_name as a fallback since domains isn't supported
       });
 
       let accountId = null;
@@ -54,12 +55,14 @@ async function handleEvent(event: any) {
       // Get the default feature ID and owner ID from environment variables
       const defaultFeatureId = process.env['DEVREV_DEFAULT_FEATURE_ID'];
       const defaultOwnerId = process.env['DEVREV_DEFAULT_OWNER_ID'];
-      
+
       console.log('Using feature ID:', defaultFeatureId);
       console.log('Using owner ID:', defaultOwnerId);
 
       if (!defaultFeatureId || !defaultOwnerId) {
-        throw new Error('Missing required environment variables: DEVREV_DEFAULT_FEATURE_ID and/or DEVREV_DEFAULT_OWNER_ID');
+        throw new Error(
+          'Missing required environment variables: DEVREV_DEFAULT_FEATURE_ID and/or DEVREV_DEFAULT_OWNER_ID'
+        );
       }
 
       // Create a work item (ticket) for the registration
@@ -69,9 +72,6 @@ async function handleEvent(event: any) {
 
       const workResponse = await devrevSDK.worksCreate({
         applies_to_part: defaultFeatureId,
-        owned_by: [defaultOwnerId],
-        title: `New Contact Registration: ${registrantData.firstName} ${registrantData.lastName}`,
-        type: publicSDK.WorkType.Ticket,
         body: `Contact Information:
 Email: ${email}
 Name: ${registrantData.firstName} ${registrantData.lastName}
@@ -83,7 +83,10 @@ Source: Airmeet Registration
 UTM Source: ${registrantData.utm_source || 'direct'}
 UTM Medium: ${registrantData.utm_medium || 'none'}
 UTM Campaign: ${registrantData.utm_campaign || 'none'}`,
-        ...(accountId && { applies_to_account: accountId })
+        owned_by: [defaultOwnerId],
+        title: `New Contact Registration: ${registrantData.firstName} ${registrantData.lastName}`,
+        type: publicSDK.WorkType.Ticket,
+        ...(accountId && { applies_to_account: accountId }),
       });
 
       console.log(`Successfully created work item:`, workResponse.data);
